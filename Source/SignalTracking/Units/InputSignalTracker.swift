@@ -14,7 +14,8 @@ final class InputSignalTracker: SignalTracker {
   private var audioEngine: AVAudioEngine?
   private let session = AVAudioSession.sharedInstance()
   private let bus = 0
-
+  private var hasAudioInterface = true;
+    
   var peakLevel: Float? {
     return audioChannel?.peakHoldLevel
   }
@@ -78,6 +79,7 @@ final class InputSignalTracker: SignalTracker {
     }
 
     try audioEngine?.start()
+    
     captureSession.startRunning()
     guard captureSession.isRunning == true else {
         throw InputSignalTrackerError.inputNodeMissing
@@ -98,6 +100,10 @@ final class InputSignalTracker: SignalTracker {
   private func setupAudio() {
     do {
       let audioDevice = AVCaptureDevice.default(for: AVMediaType.audio)
+        if(audioDevice == nil){
+            self.hasAudioInterface = false;
+            return;
+        }
       let audioCaptureInput = try AVCaptureDeviceInput(device: audioDevice!)
 
       captureSession.addInput(audioCaptureInput)
